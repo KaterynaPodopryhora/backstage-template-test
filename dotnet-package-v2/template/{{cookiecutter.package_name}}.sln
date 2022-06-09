@@ -1,0 +1,61 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30709.132
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "{{cookiecutter.package_name}}", "src\{{cookiecutter.package_name}}\{{cookiecutter.package_name}}.csproj", "{582299A0-8F1D-4352-8B5C-5E496F84D0C1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BF0A188E-C5F5-459B-B022-3FF99295EEE8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{CA3C4B3B-621B-4686-9CED-75A737CCBACC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E1CB6AA0-A0A8-48A7-9A7A-D5B3D26F566C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{cookiecutter.package_name}}.Abstractions", "src\{{cookiecutter.package_name}}.Abstractions\{{cookiecutter.package_name}}.Abstractions.csproj", "{E9AECEAC-A350-48F7-9446-13666E57D373}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{cookiecutter.package_name}}.UnitTests", "tests\{{cookiecutter.package_name}}.UnitTests\{{cookiecutter.package_name}}.UnitTests.csproj", "{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3ABCC501-93A2-4B91-893C-9C137539941B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		azure-pipelines-docs.yml = azure-pipelines-docs.yml
+		azure-pipelines.yml = azure-pipelines.yml
+		catalog-info.yml = catalog-info.yml
+		common.props = common.props
+		icon.png = icon.png
+		mkdocs.yml = mkdocs.yml
+		NuGet.config = NuGet.config
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{582299A0-8F1D-4352-8B5C-5E496F84D0C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{582299A0-8F1D-4352-8B5C-5E496F84D0C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{582299A0-8F1D-4352-8B5C-5E496F84D0C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{582299A0-8F1D-4352-8B5C-5E496F84D0C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E9AECEAC-A350-48F7-9446-13666E57D373}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9AECEAC-A350-48F7-9446-13666E57D373}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9AECEAC-A350-48F7-9446-13666E57D373}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9AECEAC-A350-48F7-9446-13666E57D373}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{582299A0-8F1D-4352-8B5C-5E496F84D0C1} = {BF0A188E-C5F5-459B-B022-3FF99295EEE8}
+		{E9AECEAC-A350-48F7-9446-13666E57D373} = {BF0A188E-C5F5-459B-B022-3FF99295EEE8}
+		{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157} = {E1CB6AA0-A0A8-48A7-9A7A-D5B3D26F566C}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0B2E46B7-2D25-499F-BCF1-A58F9E6A61C3}
+	EndGlobalSection
+EndGlobal

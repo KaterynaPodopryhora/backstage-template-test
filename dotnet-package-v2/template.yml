@@ -1,0 +1,99 @@
+
+apiVersion: backstage.io/v1beta2
+kind: Template
+# some metadata about the template itself
+metadata:
+  name: dotnet-package-v2
+  title: .NET 5.0 > Nuget Package
+  description: Create a .NET 5.0 Nuget package
+spec:
+  owner: Platform Team
+  type: library
+
+  # these are the steps which are rendered in the frontend with the form input
+  parameters:
+    - title: Fill in some steps
+      required:
+        - name
+        - description
+        - owner
+      properties:
+        name:
+          title: Name
+          type: string
+          pattern: ^[A-Za-z]+$
+          description: Unique name of the package. Should be only one word and contain letters from a to z. The name will be in the format Funda.Extensions.<YourName>
+          minLength: 5
+          maxLength: 30
+          ui:autofocus: true
+        description:
+          title: Description
+          type: string
+          description: Description of the package
+          minLength: 5
+          maxLength: 300
+          ui:options:
+            rows: 3
+          ui:widget: textarea
+        # owner:
+        #   title: Owner
+        #   type: string
+        #   description: Owner of the package
+        #   enum: ["Team Platform", "Team SRE", "Team Brokers", "Team Platform Apps", "Team Data", "Team Accounts", "Team Search", "Team TDM"]
+
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the package
+          ui:field: OwnerPicker
+          ui:widget: select
+          ui:options:
+            allowedKinds:
+              - Group
+  # here's the steps that are executed in series in the scaffolder backend
+  steps:
+    - id: fetch-base
+      name: Fetch Base
+      action: fetch:cookiecutter
+      input:
+        url: ./template
+        values:
+          package_owner: '{{ parameters.owner }}'
+          package_description: '{{ parameters.description }}'
+          package_name: 'Funda.Extensions.{{ parameters.name }}'
+          host: https://github.com
+          organization: fundarealestate
+
+    - id: publish
+      name: Publish
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: 'This is Funda.Extensions.{{ parameters.name }}'
+        repoUrl: 'github.com?owner=fundarealestate&repo=Funda.Extensions.{{ parameters.name }}'
+
+    - id: register
+      name: Register
+      action: catalog:register
+      input:
+        repoContentsUrl: '{{ steps.publish.output.repoContentsUrl }}/'
+        catalogInfoPath: './catalog-info.yml'
+    
+    - id: azdevops-pipeline-creator
+      name: Create AzureDevOps Pipeline
+      action: azdevops-pipeline-creator
+      input:
+        owner: '{{ parameters.owner }}'
+        name: 'Funda.Extensions.{{ parameters.name }}'
+
+  # some outputs which are saved along with the job for use in the frontend
+  output:
+    repoContentsUrl: '{{ steps.publish.output.repoContentsUrl }}'
+    remoteUrl: '{{ steps.publish.output.remoteUrl }}'
+    entityRef: '{{ steps.register.output.entityRef }}'
+    pipelineUrl: '{{ steps.azdevops-pipeline-creator.output.pipelineUrl}}'
+    links:
+      - title: Open build pipeline
+        url: '{{ steps.azdevops-pipeline-creator.output.pipelineUrl }}'
+      - title: Open docs pipeline
+        url: '{{ steps.azdevops-pipeline-creator.output.docsPipelineUrl }}'

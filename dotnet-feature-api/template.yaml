@@ -1,0 +1,304 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: dotnet-feature-api-v1.0 # Remember to also change templateName
+  title: .NET 6.0 > Feature Service API v1.0
+  description: Create a .NET 6.0 Feature Service API
+  tags:
+    - service
+    - template
+    - feature-api
+spec:
+  owner: Team Platform
+  type: api
+  parameters:
+    - title: Name and owner
+      required:
+        - name
+        - description
+        - owner
+        - organization
+      properties:
+        name:
+          title: Name
+          type: string
+          pattern: ^[A-Z][a-zA-Z0-9]+$
+          description: Unique name of the Feature API. Must be PascalCase. First character must be [A-Z], other chars alphanumerical.
+          minLength: 5
+          maxLength: 30
+          ui:autoFocus: true
+        description:
+          title: Description
+          type: string
+          description: Description of the Feature API.
+          minLength: 5
+          maxLength: 300
+          ui:options:
+            rows: 3
+          ui:widget: textarea
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the service
+          ui:field: OwnerPicker
+          ui:widget: select
+          ui:options:
+            allowedKinds:
+              - Group
+        organization:
+          title: GitHub organization
+          description: The organization / owner in GitHub
+          type: string
+          default: fundarealestate # Can be changed to develop/test against dev/test repo
+          ui:widget: hidden
+    - title: HTTP endpoints
+      description: This template supports both the [Minimal API](https://www.google.com) .NET 6 Endpoints and the classic MVC Controllers.
+      properties:
+        httpApi:
+          title: HTTP API
+          description: "'' provides a simpler, lightweight alternative to the tried and true 'MVC Controllers'."
+          type: string
+          oneOf:
+            - const: ".NET 6 Minimal API Endpoints"
+            - const: "MVC Controllers"
+          default: .NET 6 Minimal API Endpoints
+    - title: Storage
+      description: Storage options
+      ui:order:
+        - sqlServer
+        - cosmosDb
+        - cosmosDbRepository
+        - entityFramework
+        - entityFrameworkRepository
+      properties:
+        cosmosDb:
+          title: Enable a CosmosDB data store
+          type: string
+          oneOf:
+            - const: ""
+              title: "No"
+            - const: "Yes"
+          description: "'Yes' includes package references and sample code for the Cosmos DB client. Leave blank to omit these references and samples."
+        sqlServer:
+          title: Enable a SQL PaaS database
+          type: string
+          oneOf:
+            - const: ""
+              title: "No"
+            - const: "Yes"
+        entityFramework:
+          title: Enable Entity Framework Core
+          type: string
+          oneOf:
+            - const: ""
+              title: "No"
+            - const: "Entity Framework Core"
+            - const: "Entity Framework Core with CosmosDB"
+            - const: "Entity Framework Core with SqlServer"
+          description: "'Entity Framework Core' includes package references and sample code. The 'with ...' options add a DbContext for that data store."
+
+      dependencies:
+        cosmosDb:
+          properties:
+            cosmosDbRepository:
+              title: Add CosmosDB Sample Repository Class
+              type: boolean
+        entityFramework:
+          properties:
+            entityFrameworkRepository:
+              title: Add Entity Framework Sample Repository Class
+              type: boolean
+
+    - title: Messaging
+      description: Messaging
+      properties:
+        fundaMessaging:
+          title: Enable Funda.Extensions.Messaging
+          type: string
+          oneOf:
+            - const: ""
+              title: "No"
+            - const: "Yes"
+          description: "'Yes' includes package references and sample code for the Funda.Extensions.Messaging client library, which helps with sending and receiving events through Azure Service Bus. Leave blank to omit these references and samples."
+
+  # scaffolding steps
+  steps:
+    - id: fetch-base
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: './template'
+        values:
+          templateName: dotnet-feature-api-v1.0 # From metadata.name
+          name: ${{ parameters.name }}
+          description: ${{ parameters.description }}
+          owner: ${{ parameters.owner }}
+          repoName: 'Funda.${{ parameters.name }}'
+          namespacePrefix: 'Funda.${{ parameters.name }}'
+          fileNamePrefix: 'Funda.${{ parameters.name }}'
+          dirNamePrefix: 'Funda.${{ parameters.name }}'
+          applicationName: 'Funda.${{ parameters.name }}'
+          enableControllers: ${{ parameters.httpApi == 'MVC Controllers' }}
+          enableEndpoints: ${{ parameters.httpApi == '.NET 6 Minimal API Endpoints' }}
+          enableFundaMessaging: ${{ parameters.fundaMessaging | d(false, true) }}
+          enableCosmosDb: ${{ parameters.cosmosDb | d(false, true) }}
+          enableCosmosDbRepository: ${{ (parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true)) }}
+          enableEntityFramework: ${{ parameters.entityFramework != '' }}
+          enableEntityFrameworkCosmosDb: ${{ parameters.entityFramework == 'Entity Framework Core with CosmosDB' }}
+          enableEntityFrameworkSqlServer: ${{ parameters.entityFramework == 'Entity Framework Core with SqlServer' }}
+          enableEntityFrameworkRepository: ${{ (parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true)) }}
+          enableInMemoryRepository: >-
+            ${{
+              (
+                not
+                (
+                  (not ((parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true))))
+                  and
+                  (not ((parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true))))
+                )
+              )
+            }}
+
+    - id: remove-controllers
+      name: Remove Controllers
+      action: fs:delete
+      if: ${{ not parameters.mvcControllers }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}/Controllers
+
+    - id: remove-endpoints
+      name: Remove Endpoints
+      action: fs:delete
+      if: ${{ not parameters.endpoints }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}/Endpoints
+
+    - id: remove-funda-messaging
+      name: Remove Funda.Messaging
+      action: fs:delete
+      if: ${{ not (parameters.fundaMessaging | d(false, true)) }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}/Messaging
+          
+    - id: setup-sqlserver
+      name: Remove SQL Server
+      action: fs:delete
+      if: ${{ not (parameters.sqlServer | d(false, true)) }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/SqlServer
+
+    - id: remove-cosmosdb
+      name: Remove CosmosDB
+      action: fs:delete
+      if: ${{ not (parameters.cosmosDb | d(false, true)) }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/CosmosDb
+
+    - id: remove-cosmosdb-repository
+      name: Remove CosmosDB Repository class
+      action: fs:delete
+      if: ${{ not (parameters.cosmosDb and parameters.cosmosDbRepository) }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/CosmosDb/CosmosDbRepository.cs
+
+    - id: remove-ef
+      name: Remove EF Core
+      action: fs:delete
+      if: ${{ not parameters.entityFramework }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework
+
+    - id: remove-ef-repository
+      name: Remove EF Core Repository Class
+      action: fs:delete
+      if: ${{ not ((parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true))) }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework/EntityFrameworkMeasurementRepository.cs
+
+    - id: remove-ef-cosmos
+      name: Remove EF Core CosmosDb
+      action: fs:delete
+      if: ${{ parameters.entityFramework != 'Entity Framework Core with CosmosDB' }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework/CosmosDb
+
+    - id: remove-ef-sqlserver
+      name: Remove EF Core SqlServer
+      action: fs:delete
+      if: ${{ parameters.entityFramework != 'Entity Framework Core with SqlServer' }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework/SqlServer
+
+    - id: remove-in-memory-repository
+      name: Remove In Memory repository
+      action: fs:delete
+      if: >-
+        ${{
+          (not
+            (
+              (not ((parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true))))
+              and
+              (not ((parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true))))
+            )
+          )
+        }}
+      input:
+        files:
+          - src/Funda.${{ parameters.name }}.Infrastructure/InMemory
+
+    - id: publish
+      name: Create GitHub Repository
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        defaultBranch: main
+        description: ${{ parameters.description }}
+        repoUrl: 'github.com?owner=${{ parameters.owner }}&repo=Funda.${{ parameters.name }}'
+
+    - id: azdevops
+      name: Create Azure DevOps Pipeline
+      action: azdevops-pipeline-creator
+      input:
+        owner: ${{ parameters.owner }}
+        name: 'Funda.${{ parameters.name }}'
+
+    - id: updateCatalogInfo
+      name: Update Catalog Entity Descriptor
+      action: catalog:write
+      input:
+        entity:
+          $yaml: template/catalog-info.yaml
+
+    - id: makepr
+      name: Create GitHub Pull Request
+      action: publish:github:pull-request
+      input:
+        description: ${{ parameters.description }}
+        repoUrl: 'github.com?owner=${{ parameters.owner }}&repo=Funda.${{ parameters.name }}'
+        branchName: catalog-info
+        title: "Update catalog-info.yaml"
+
+    - id: register
+      name: Register with Software Catalog
+      action: catalog:register
+      input:
+        catalogInfoUrl: '${{ steps.publish.output.repoContentsUrl }}/catalog-info.yaml'
+
+  # outputs
+  output:
+    links:
+      - title: Approve PR for Catalog Entity Descriptor
+        url: ${{ steps.makepr.output.remoteUrl }}
+      - title: Open in catalog
+        icon: catalog
+        entityRef: ${{ steps.register.output.entityRef }}

@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: "{{ cookiecutter.name }}"
+  description: "{{ cookiecutter.description }}"
+spec:
+  type: console-app
+  lifecycle: experimental
+  owner: "{{ cookiecutter.owner }}"
+  # system: funda
+  # providesApis:
+  #   - artist-api

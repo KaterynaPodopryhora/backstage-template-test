@@ -1,0 +1,9 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: golden-path-templates
+  description: All funda templates that follow a Golden Path
+spec:
+  targets:
+    - ./template.yaml
+    - ./dotnet-package/template.yaml

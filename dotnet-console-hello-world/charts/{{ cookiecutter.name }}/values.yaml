@@ -1,0 +1,107 @@
+environment_name: "acc"
+keyvault:
+  name: bla
+  sid: bla
+  tid: bla
+dev:
+envs:
+  projecta:
+    enabled: false
+acc:
+  envs:
+    acc:
+      datadogMetrics:
+        - name: {{ cookiecutter.name }}hits
+          query: "max:trace.aspnet_core.request.hits{env:acc,service:{{ cookiecutter.name }}}.rollup(avg,30)" 
+      hpa:
+        enabled: false
+      enabled: false
+      buildkey: TEMP
+      image:
+        tag: temp
+      ingress:
+        hosts:
+          - {{ cookiecutter.name }}.internal.acc.funda.io
+      id: TODO
+      client_id: TODO
+prod:
+  envs:
+    prod:
+      datadogMetrics:
+        - name: {{ cookiecutter.name }}hits
+          query: "max:trace.aspnet_core.request.hits{env:prod,service:{{ cookiecutter.name }}-funda-io}.rollup(avg,30)"
+      hpa:
+        enabled: false
+      enabled: false
+      buildkey: TEMP
+      replicaCount: 4
+      image:
+        tag: temp
+      ingress:
+        enabled: true
+        hosts:
+          - {{ cookiecutter.name }}.prod.funda.io
+      id: TODO
+      client_id: TODO
+tools:
+  envs:
+    tools:
+      enabled: false
+playground:
+  envs:
+enabled: false
+replicaCount: 1
+image:
+  repository: funda.azurecr.io/{{ cookiecutter.name }}
+  #tag: master.71
+  pullPolicy: IfNotPresent
+service:
+  enabled: true
+  externalPort: 80
+  containerPort: 5000
+probes:
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    failureThreshold: 5
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    failureThreshold: 2
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 10
+serviceAccount:
+  enabled: true
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+  path: /*
+resources:
+  requests:
+    cpu: 0.2
+    memory: 512Mi
+  limits:
+    cpu: 0.8
+    memory: 1024Mi
+nodeSelector: {}
+tolerations: []
+affinity: {}
+podAnnotations: []
+env: []
+secrets:
+  - name: {{ cookiecutter.name }}-io-secrets
+    alias: secrets.json
+integrationtests:
+  enabled: false
+upgradetask:
+  enabled: false
+apmEnabled: true
+hpa:
+  enabled: false

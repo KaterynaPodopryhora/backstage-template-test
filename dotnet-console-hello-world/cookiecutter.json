@@ -1,0 +1,6 @@
+{
+  "owner":"me",
+  "name": "",
+  "dotnet_package_name": "{{ cookiecutter.name|replace('-', '.') }}",
+  "description": "We promise to update this description / {{cookiecutter.owner}}"
+}

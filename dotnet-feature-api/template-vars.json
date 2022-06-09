@@ -1,0 +1,21 @@
+{
+  "values": {
+    "name": "FeatureApiTemplate",
+    "description": "FeatureApiTemplate description",
+    "owner": "funda",
+    "repoName": "Funda.FeatureApiTemplate",
+    "namespacePrefix": "Funda.FeatureApiTemplate",
+    "fileNamePrefix": "Funda.FeatureApiTemplate",
+    "dirNamePrefix": "Funda.FeatureApiTemplate",
+    "applicationName": "Funda.FeatureApiTemplate",
+    "enableFundaMessaging": true,
+    "enableControllers": true,
+    "enableEndpoints": true,
+    "enableSqlServer": true,
+    "enableCosmosDb": true,
+    "enableEntityFramework": true,
+    "enableEntityFrameworkSqlServer": true,
+    "enableEntityFrameworkCosmosDb": true,
+    "enableInMemoryRepository": true  
+  }
+}

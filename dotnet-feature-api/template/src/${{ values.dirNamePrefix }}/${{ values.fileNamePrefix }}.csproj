@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+	<!-- Package Settings -->
+	<PropertyGroup>
+		<PackageId>${{ values.applicationName }}</PackageId>
+		<Description>${{ values.description }}</Description>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MediatR" Version="10.0.1" />
+		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="10.4.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
+
+		<PackageReference Include="Funda.Extensions.Hosting" Version="4.3.2" />
+		<PackageReference Include="Funda.Extensions.Metrics.AspNetCore" Version="5.3.0" />
+		<PackageReference Include="Funda.Extensions.Metrics.Statsd" Version="5.3.0" />
+		<PackageReference Include="Funda.Middleware.HealthChecks" Version="2.0.1" />
+
+		{%- if values.enableFundaMessaging %}
+		<PackageReference Include="Funda.Extensions.DateTimeProvider" Version="1.0.2" />
+		<PackageReference Include="Funda.Extensions.Messaging" Version="5.1.1" />
+		<PackageReference Include="Funda.Extensions.Messaging.Metrics" Version="5.1.1" />
+		<PackageReference Include="Funda.Extensions.Messaging.CQRS" Version="5.1.1" />
+		<PackageReference Include="Funda.Extensions.Messaging.InMemory" Version="5.1.1" />
+		<PackageReference Include="Funda.Extensions.Messaging.DatadogTracing" Version="5.1.1" />
+		{%- endif %}
+
+		{%- if values.enableControllers %}
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+		{%- endif %}
+
+		{%- if values.enableEntityFramework %}
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.4">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		{%- endif %}
+
+		{%- if values.enableEntityFrameworkSqlServer %}
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.4" />
+		{%- endif %}
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\${{ values.dirNamePrefix }}.Domain\${{ values.fileNamePrefix }}.Domain.csproj" />
+		<ProjectReference Include="..\${{ values.dirNamePrefix }}.Infrastructure\${{ values.fileNamePrefix }}.Infrastructure.csproj" />
+	</ItemGroup>
+</Project>

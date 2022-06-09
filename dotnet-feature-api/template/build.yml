@@ -1,0 +1,35 @@
+# This is a placeholder until the service pipeline templates can be integrated
+trigger:
+  branches:
+    include:
+      - '*'
+  paths:
+    include:
+      - '*'
+
+parameters:
+  - name: name
+    type: string
+  - name: buildTag
+    type: string
+
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      ref: 0.2
+      name: fundarealestate/service-pipeline-templates
+      endpoint: fundarealestate
+
+stages:
+  - template: service/build/build.yml@templates
+    parameters:
+      buildProjects:
+        - projectName: ${{ values.dirNamePrefix }}
+          imageName: ${{ values.name | lower }}
+
+  - template: service/build/unit-tests-dotnet.yml@templates
+
+  - template: service/build/validate-terraform.yml@templates
+    parameters:
+      name: ValidateTerraform

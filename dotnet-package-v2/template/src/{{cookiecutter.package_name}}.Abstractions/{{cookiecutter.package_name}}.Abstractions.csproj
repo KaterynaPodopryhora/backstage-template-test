@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Package Settings -->
+  <PropertyGroup>
+    <PackageId>{{cookiecutter.package_name}}.Abstractions</PackageId>
+    <Description>{{cookiecutter.package_description}}</Description>
+    <RootNamespace>{{cookiecutter.package_name}}</RootNamespace>
+  </PropertyGroup>
+  
+  <!-- Common Properties -->
+  <Import Project="..\..\common.props" />
+
+</Project>

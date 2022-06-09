@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		{%- if values.enableCosmosDb %}
+		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.26.1" />
+		{%- endif %}
+
+		{%- if values.enableEntityFramework %}
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
+
+		{%- if values.enableEntityFrameworkCosmosDb %}
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Cosmos" Version="6.0.4" />
+		{%- endif %}
+
+		{%- if values.enableEntityFrameworkSqlServer %}
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.4" />
+		{%- endif %}
+
+		{%- endif %}
+
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="6.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\${{ values.dirNamePrefix }}.Domain\${{ values.fileNamePrefix }}.Domain.csproj" />
+	</ItemGroup>
+
+</Project>

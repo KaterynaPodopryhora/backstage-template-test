@@ -1,0 +1,40 @@
+
+# Funda Azure DevOps Pipeline
+# Organisation: funda-sre
+# Project: listing-search-legacy-funda-io
+# Pipeline: infrastructure
+
+trigger:
+  branches:
+    include:
+    - master
+    - kubernetes
+  paths:
+    include:
+    - terraform/*
+
+resources:
+  repositories:
+    - repository: templates 
+      type: git
+      name: funda-deliverables/Funda.Azure
+    - repository: envs 
+      type: git
+      name: funda-deliverables/Funda.Azure
+
+variables:
+  - group: TerraformBaseVariables
+
+extends:
+  template: azure_pipelines_templates/terraform-build-deploy-pipeline.yml@templates
+  parameters:
+    terraformConfig: terraform
+    terraformVersion: 0.14.4
+    stateKey: {{cookiecutter.name}}-funda-io
+    environments:
+      - name: dev
+        serviceConnection: DevelopmentAuth
+      - name: acc
+        serviceConnection: AcceptationAuth
+      - name: prod
+        serviceConnection: ProductionAuth

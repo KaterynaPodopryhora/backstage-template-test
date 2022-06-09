@@ -1,0 +1,117 @@
+{% raw %}
+{{- range $env_name, $overrides := (get .Values .Values.environment_name).envs }}
+{{- with $ }}
+{{- with (set . "Values" (mustMergeOverwrite .Values  ($overrides|default dict) (dict "env_name" $env_name))) }}
+
+{{- if .Values.enabled }}
+{{- if .Values.upgradetask.enabled }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: "id-{{ .Release.Name }}-upgradetask"
+  annotations:
+    helm.sh/hook: pre-install, pre-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  type: 0
+  resourceID: {{ .Values.upgradetask.id | quote }}
+  clientID: {{ .Values.upgradetask.client_id | quote }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: "{{ .Release.Name }}-upgradetask-binding"
+  annotations:
+    helm.sh/hook: pre-install, pre-upgrade
+    helm.sh/hook-weight: "1"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  azureIdentity: "id-{{ .Release.Name }}-upgradetask"
+  selector: "{{ .Release.Name }}-upgradetask"
+{{ if gt (len .Values.upgradetask.secrets ) 0 }}
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: "{{ .Release.Name }}-upgradetask"
+  annotations:
+    helm.sh/hook: pre-install, pre-upgrade
+    helm.sh/hook-weight: "2"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "true"
+    keyvaultName: {{ .Values.keyvault.name | quote }}
+    objects: |
+      array:
+        {{- range .Values.upgradetask.secrets }}
+        - |
+          objectName: {{ .name }}
+          objectAlias: {{ .alias | default "" }}
+          objectType: {{ .type | default "secret" }}
+          objectVersion: {{ .version | default "" }}
+        {{- end }}
+    resourceGroup: {{ .Values.keyvault.rg | quote }}
+    subscriptionId: {{ .Values.keyvault.sid | quote }}
+    tenantId: {{ .Values.keyvault.tid | quote }}
+{{ end -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "funda-helper.fullname" . }}-upgradetask
+  labels:
+    app: {{ template "funda-helper.name" . }}
+    chart: {{ template "funda-helper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Values.image.tag }}
+    helm.sh/chart: {{ template "funda-helper.chart" . }}
+  annotations:
+    helm.sh/hook: pre-install, pre-upgrade
+    helm.sh/hook-weight: "3"
+    # Do not delete on failure to allow for log inspection
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      name: {{ template "funda-helper.fullname" . }}-upgradetask
+      labels:
+        aadpodidbinding: "{{ .Release.Name }}-upgradetask"
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: {{ template "funda-helper.chart" . }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: upgradetask
+        image: "{{ .Values.upgradetask.image.repository | default "mcr.microsoft.com/dotnet/core/sdk" }}:{{ .Values.upgradetask.image.tag | default "3.1" }}"
+        workingDir: /app
+        command: ["/bin/sh"]
+        args: ["-c", " export ASPNETCORE_ENVIRONMENT={{ $env_name }} && curl -OL --fail -u $(cat /app/publish-upgrader/secrets/user):$(cat /app/publish-upgrader/secrets/password) https://bamboo.funda.nl/browse/{{.Values.buildkey}}-{{splitList "." .Values.image.tag | last}}/artifact/shared/binaries-upgrader/publish-upgrader.tar.gz && tar -xf publish-upgrader.tar.gz --strip 1 && cd publish-upgrader && dotnet {{.Values.upgradetask.main}}.dll"]
+      {{- if gt (len .Values.upgradetask.secrets ) 0 }}
+        volumeMounts:
+        - name: secrets
+          mountPath: /app/publish-upgrader/secrets
+          readOnly: true
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "{{ .Release.Name }}-upgradetask"
+      {{ end -}}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+
+{{ end -}}
+{{ end -}}
+{% endraw %}

@@ -1,0 +1,168 @@
+{% raw %}
+{{- range $env_name, $overrides := ((get .Values .Values.environment_name).envs) }}
+{{- with $ }}
+{{- with (set . "Values" (mustMergeOverwrite .Values  ($overrides|default dict) (dict "env_name" $env_name))) }}
+{{- if .Values.enabled }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: "id-{{ template "funda-helper.fullname" . }}" 
+spec:
+  type: 0
+  resourceID: {{ .Values.id | quote }}
+  clientID: {{ .Values.client_id | quote }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: {{ template "funda-helper.fullname" . }}-binding
+spec:
+  azureIdentity: "id-{{ template "funda-helper.fullname" . }}"
+  selector: {{ template "funda-helper.fullname" . }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "funda-helper.fullname" . }}
+  labels:
+    app: {{ template "funda-helper.fullname" . }}
+    chart: {{ template "funda-helper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: {{ template "funda-helper.chart" . }}
+    tags.datadoghq.com/service: {{ .Release.Name | quote }}
+    tags.datadoghq.com/version: {{ .Values.image.tag | quote }} 
+spec:
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 4
+  selector:
+    matchLabels:
+      app: {{ template "funda-helper.fullname" . }}
+  template:
+    metadata:
+      labels:
+        aadpodidbinding: {{ template "funda-helper.fullname" . }}
+        app: {{ template "funda-helper.fullname" . }}
+        tags.datadoghq.com/service: {{ .Release.Name | quote }}
+        tags.datadoghq.com/version: {{ .Values.image.tag | quote }}
+      annotations:
+        {{- range $key, $value := .Values.podAnnotations }}
+        {{ $key }}: {{ $value | quote }}
+        {{- end }}
+    spec:
+      {{- if .Values.serviceAccount.enabled }}
+      serviceAccountName: {{ template "funda-helper.serviceAccountName" . }}
+      {{- end }}
+      dnsConfig:
+        options:
+          - name: single-request-reopen
+      containers:
+        - name: {{ .Release.Name | quote }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{ toYaml .Values.probes | indent 10 | default ""}}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: {{ template "funda-helper.envname" . }}
+          {{- if .Values.apmEnabled }}
+            - name: CORECLR_ENABLE_PROFILING
+              value: "1"
+            - name: CORECLR_PROFILER
+              value: "{846F5F1C-F9AE-4B07-969E-05C26BC060D8}"
+            - name: CORECLR_PROFILER_PATH
+              value: "/opt/datadog/Datadog.Trace.ClrProfiler.Native.so"
+            - name: DD_INTEGRATIONS
+              value: "/opt/datadog/integrations.json"
+            - name: DD_DOTNET_TRACER_HOME
+              value: "/opt/datadog"
+            - name: DD_SERVICE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/service']
+            - name: DD_VERSION
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['tags.datadoghq.com/version']
+            - name: DD_LOGS_INJECTION
+              value: "true"
+            - name: FUNDA_APPNAME
+              value: {{ .Release.Name | quote }}              
+          {{- end }}
+          {{- range .Values.env }}
+            - name: {{ .name }}
+              value: {{ .value }}
+          {{- end }}
+          {{- with .Values.assets }}
+          {{- if .name }}
+            - name: {{ .name }}
+              value: {{ .value }}
+          {{- end }}
+          {{- end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+          {{- if gt (len .Values.secrets ) 0 }}
+          volumeMounts:
+            - name: secrets
+              mountPath: /app/secrets
+              readOnly: true
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "{{ .Release.Name }}"
+          {{ end -}}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+{{ if gt (len .Values.secrets ) 0 }}
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: "{{ .Release.Name }}"
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "true"
+    keyvaultName: {{ .Values.keyvault.name | quote }}
+    objects: |
+      array:
+        {{- range .Values.secrets }}
+        - |
+          objectName: {{ .name }}
+          objectAlias: {{ .alias | default "" }}
+          objectType: {{ .type | default "secret" }}
+          objectVersion: {{ .version | default "" }}
+        {{- end }}
+    resourceGroup: {{ .Values.keyvault.rg | quote }}
+    subscriptionId: {{ .Values.keyvault.sid | quote }}
+    tenantId: {{ .Values.keyvault.tid | quote }}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{% endraw %}

@@ -1,0 +1,47 @@
+trigger:
+  paths:
+    include:
+    - docs/*
+    - azure-pipelines-docs.yml
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Build
+  displayName: Build Documentation
+  jobs:
+  - job: BuildDocs
+    displayName: Build and publish the docs
+    steps:
+      - task: NodeTool@0
+        displayName: Use node 14.x
+        inputs:
+          versionSpec: 14.x
+      - script: npm install -g @techdocs/cli
+        displayName: install techdocs-cli
+      - script: pip install mkdocs-techdocs-core==0.*
+        displayName: install mkdocs pip package
+      - script: pip install slugify
+        displayName: install slugify
+      - script: techdocs-cli generate --verbose --no-docker --source-dir . --output-dir ./site
+        displayName: Generate docs
+      - task: AzureCLI@2
+        displayName: Publish docs to azure blob storage (acc)
+        inputs:
+          azureSubscription: AcceptationAuth
+          scriptType: bash
+          scriptLocation: inlineScript
+          addSpnToEnvironment: true
+          inlineScript: |
+            techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName stfretechdocsacc --storage-name techdocs --legacyUseCaseSensitiveTripletPaths --entity default/Component/{{cookiecutter.package_name}} --directory ./site
+      - task: AzureCLI@2
+        displayName: Publish docs to azure blob storage (tools)
+        condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+        inputs:
+          azureSubscription: ToolsAuth
+          scriptType: bash
+          scriptLocation: inlineScript
+          addSpnToEnvironment: true
+          inlineScript: |
+            techdocs-cli publish --publisher-type azureBlobStorage --azureAccountName stfretechdocstools --storage-name techdocs --legacyUseCaseSensitiveTripletPaths --entity default/Component/{{cookiecutter.package_name}} --directory ./site

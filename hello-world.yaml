@@ -1,0 +1,8 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: hello-world-templates
+  description: A collection of test templates
+spec:
+  targets:
+    - ./template.yaml

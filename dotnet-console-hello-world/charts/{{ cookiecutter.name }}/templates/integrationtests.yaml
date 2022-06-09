@@ -1,0 +1,118 @@
+{% raw %}
+{{- range $env_name, $overrides := (get .Values .Values.environment_name).envs }}
+{{- with $ }}
+{{- with (set . "Values" (mustMergeOverwrite .Values  ($overrides|default dict) (dict "env_name" $env_name))) }}
+
+{{- if .Values.enabled }}
+{{- if .Values.integrationtests.enabled }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentity
+metadata:
+  name: "id-{{ .Release.Name }}-integrationtests"
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  type: 0
+  resourceID: {{ .Values.integrationtests.id | quote }}
+  clientID: {{ .Values.integrationtests.client_id | quote }}
+---
+apiVersion: "aadpodidentity.k8s.io/v1"
+kind: AzureIdentityBinding
+metadata:
+  name: "{{ .Release.Name }}-integrationtests-binding"
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-weight: "1"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  azureIdentity: "id-{{ .Release.Name }}-integrationtests"
+  selector: "{{ .Release.Name }}-integrationtests"
+{{ if gt (len .Values.integrationtests.secrets ) 0 }}
+---
+apiVersion: secrets-store.csi.x-k8s.io/v1alpha1
+kind: SecretProviderClass
+metadata:
+  name: "{{ .Release.Name }}-integrationtests"
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-weight: "2"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded,hook-failed
+spec:
+  provider: azure
+  parameters:
+    usePodIdentity: "true"
+    keyvaultName: {{ .Values.keyvault.name | quote }}
+    objects: |
+      array:
+        {{- range .Values.integrationtests.secrets }}
+        - |
+          objectName: {{ .name }}
+          objectAlias: {{ .alias | default "" }}
+          objectType: {{ .type | default "secret" }}
+          objectVersion: {{ .version | default "" }}
+        {{- end }}
+    resourceGroup: {{ .Values.keyvault.rg | quote }}
+    subscriptionId: {{ .Values.keyvault.sid | quote }}
+    tenantId: {{ .Values.keyvault.tid | quote }}
+{{ end -}}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "funda-helper.fullname" . }}-integrationtests
+  labels:
+    app: {{ template "funda-helper.name" . }}
+    chart: {{ template "funda-helper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Values.image.tag }}
+    helm.sh/chart: {{ template "funda-helper.chart" . }}
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-weight: "3"
+    # Do not delete on failure to allow for log inspection
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      name: {{ template "funda-helper.fullname" . }}-integrationtests
+      labels:
+        aadpodidbinding: "{{ .Release.Name }}-integrationtests"
+        app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+        app.kubernetes.io/instance: {{ .Release.Name | quote }}
+        helm.sh/chart: {{ template "funda-helper.chart" . }}
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: integrationtests
+        image: "{{ .Values.integrationtests.image.repository }}:{{ .Values.integrationtests.image.tag }}"
+        workingDir: /app
+        command: ["/bin/sh"]
+        args: ["-c", "export ASPNETCORE_ENVIRONMENT={{ $env_name }} && curl -OL --fail -u $(cat /test/secrets/bamboo-user):$(cat /test/secrets/bamboo-password) https://bamboo.funda.nl/browse/{{ template "funda-helper.buildId" . }}/artifact/shared/Integration-Tests/IntegrationTests.tar.gz && tar -xf IntegrationTests.tar.gz --strip=1 && chmod +x run-integration-tests.sh && ./run-integration-tests.sh \"$(cat /test/secrets/artifactory-key 2>/dev/null)\" '{{ .Values.buildkey }}' '{{ $env_name }}' '{{ template "funda-helper.buildId" . }}'"]
+      {{- if gt (len .Values.integrationtests.secrets ) 0 }}
+        volumeMounts:
+        - name: secrets
+          mountPath: /test/secrets
+          readOnly: true
+      volumes:
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: "{{ .Release.Name }}-integrationtests"
+      {{ end -}}
+
+{{ end -}}
+{{ end -}}
+{{ end -}}
+
+{{ end -}}
+{{ end -}}
+{% endraw %}
