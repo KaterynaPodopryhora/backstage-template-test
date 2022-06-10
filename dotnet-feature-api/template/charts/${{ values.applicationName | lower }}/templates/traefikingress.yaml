@@ -1,0 +1,130 @@
+{% raw %}
+{{/* Merge {cluster}.envs.{subEnv} dict into .Values */}}
+{{- range $env_name, $env_overrides := ((get .Values .Values.environment_name).envs) }}
+{{- with mustDeepCopy $ }}
+{{- $_ := set . "Values" (mustMergeOverwrite .Values ($env_overrides | default dict) (dict "env_name" $env_name)) }}
+
+{{- if .Values.enabled }}
+
+{{/* Optionally merge {cluster}.envs.{subEnv}.services.{serviceName} dict into .Values */}}
+{{ $root := . }}
+{{- range $service_name, $service_overrides := default (dict "" dict) .Values.services }}
+{{- with mustDeepCopy $root }}
+{{- $_ := set . "Values" (mustMergeOverwrite .Values ($service_overrides | default dict) (dict "service_name" $service_name)) }}
+
+{{- if .Values.traefikIngress.enabled }}
+{{- if gt (len .Values.traefikIngress.routes) 0 }}
+---
+{{- $fullName := include "funda-helper.fullname" . -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ $fullName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: {{ $fullName }}
+    chart: {{ template "funda-helper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: {{ template "funda-helper.chart" . }}
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  entryPoints:
+  {{- if eq .Release.Namespace "public" }}
+    {{- if eq $env_name "dev" }}
+    - public-http # For office F5 LB
+    {{- end }}
+    - public-https
+  {{- else }}
+    {{- if or .Values.traefikIngress.allowHTTP (eq $env_name "dev") }} # Dev uses HTTP for office F5 LB
+    - private-http
+    {{- end }}
+    - private-https
+  {{- end }}
+  routes:
+  {{- range $index, $route := .Values.traefikIngress.routes }}
+    - kind: Rule
+      {{- if $route.pathPrefix }}
+      match: Host(`{{ $route.host }}`) && PathPrefix(`{{ $route.pathPrefix }}`, `/en{{ $route.pathPrefix }}`)
+      {{- else }}
+      match: Host(`{{ $route.host }}`)
+      {{- end }}
+      priority: {{ $route.priority | default 0 }}
+      services:
+        - kind: Service
+          name: {{ $fullName }}
+          namespace: {{ $.Release.Namespace }}
+          port: {{ $.Values.service.externalPort }}
+      middlewares:
+        {{- if $route.middlewares }}
+        {{- range $middleware := $route.middlewares }}
+        - name: "{{ $fullName }}-{{ $middleware.name }}-{{ $index }}"
+          namespace: {{ $.Release.Namespace }}
+        {{- end }}
+        {{- end }}
+    {{- if $route.isPublicAssetsPrefix }}
+    - kind: Rule
+      match: Host(`{{ $route.host }}`) && (PathPrefix(`{{ coalesce $route.pathPrefix "" }}/_nuxt`) || Path(`{{ coalesce $route.pathPrefix "" }}/favicon.ico`)
+      priority: 200
+      services:
+        - kind: Service
+          name: {{ $fullName }}
+          namespace: {{ $.Release.Namespace }}
+          port: {{ $.Values.service.externalPort }}
+      middlewares:
+        - name: "{{ $fullName }}-strip-prefix-{{ $index }}"
+          namespace: {{ $.Release.Namespace }}
+        {{- if $route.middlewares }}
+        {{- range $middleware := $route.middlewares }}
+        - name: "{{ $fullName }}-{{ $middleware.name }}-{{ $index }}"
+          namespace: {{ $.Release.Namespace }}
+        {{- end }}
+        {{- end }}
+    {{- end}}
+  {{- end }}
+
+{{- range $index, $route := .Values.traefikIngress.routes }}
+
+{{- if $route.middlewares }}
+{{- range $middleware := $route.middlewares }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "{{ $fullName }}-{{ $middleware.name }}-{{ $index }}"
+  namespace: {{ $.Release.Namespace }}
+spec:
+  {{- toYaml (unset $middleware "name") | nindent 2 }}
+{{- end }}
+{{- end }}
+
+{{- if $route.isPublicAssetsPrefix }}
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: "{{ $fullName }}-strip-prefix-{{ $index }}"
+  namespace: {{ $.Release.Namespace }}
+spec:
+  stripPrefix:
+    prefixes:
+      - "{{ $route.pathPrefix }}"
+{{- end }}
+
+{{- end }}
+
+{{- end }}
+{{- end }}
+
+{{- end }}
+{{- end }}
+
+{{- end }}
+
+{{- end }}
+{{- end }}
+{% endraw %}

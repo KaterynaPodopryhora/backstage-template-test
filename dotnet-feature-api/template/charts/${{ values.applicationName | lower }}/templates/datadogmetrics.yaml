@@ -1,0 +1,34 @@
+{% raw %}
+{{/* Merge {cluster}.envs.{subEnv} dict into .Values */}}
+{{- range $env_name, $env_overrides := ((get .Values .Values.environment_name).envs) }}
+{{- with mustDeepCopy $ }}
+{{- $_ := set . "Values" (mustMergeOverwrite .Values ($env_overrides | default dict) (dict "env_name" $env_name)) }}
+
+{{- if .Values.enabled }}
+
+{{/* Iterate over {cluster}.envs.{subEnv}.datadogMetrics */}}
+{{ $root := . }}
+{{- range $datadogMetrics_index, $datadogMetrics := .Values.datadogMetrics }}
+{{- with mustDeepCopy $root }}
+---
+apiVersion: datadoghq.com/v1alpha1
+kind: DatadogMetric
+metadata:
+  name: {{ $.Release.Name }}-{{ $datadogMetrics.name }}
+  labels:
+    app: {{ template "funda-helper.name" . }}
+    chart: {{ template "funda-helper.chart" . }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+    app.kubernetes.io/managed-by: {{ $.Release.Service | quote }}
+    app.kubernetes.io/instance: {{ $.Release.Name | quote }}
+    app.kubernetes.io/version: {{ $.Chart.AppVersion }}
+    helm.sh/chart: {{ template "funda-helper.chart" . }}
+spec:
+  query: {{ $datadogMetrics.query }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{% endraw %}

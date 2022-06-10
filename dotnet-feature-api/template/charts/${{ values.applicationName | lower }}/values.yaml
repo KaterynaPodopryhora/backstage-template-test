@@ -1,0 +1,129 @@
+environment_name: "acc"
+keyvault:
+  name: bla
+  sid: bla
+  tid: bla
+dev:
+  envs:
+    dev:
+      enabled: true
+      services:
+        app:
+          traefikIngress:
+            allowHTTP: true
+            routes:
+              - host: ${{ values.name | lower }}.internal.dev.funda.io
+          replicaCount: 1
+acc:
+  envs:
+    acc:
+      enabled: true
+      services:
+        app:
+          traefikIngress:
+            allowHTTP: true
+            routes:
+              - host: ${{ values.name | lower }}.internal.acc.funda.io
+          replicaCount: 1
+prod:
+  envs:
+    prod:
+      enabled: true
+      services:
+        app:
+          traefikIngress:
+            allowHTTP: true
+            routes:
+              - host: ${{ values.name | lower }}.internal.funda.io
+          hpa:
+            minReplicas: 2
+            maxReplicas: 4
+            metrics:
+              - type: Resource
+                resource:
+                  name: cpu
+                  target:
+                    type: Utilization
+                    averageUtilization: 70
+      hpa:
+        enabled: true
+        apiVersion: apps/v1
+        kind: Deployment
+        behavior:
+          scaleDown:
+            stabilizationWindowSeconds: 300
+            policies:
+              - type: Pods
+                value: 2
+                periodSeconds: 90
+              - type: Percent
+                value: 25
+                periodSeconds: 90
+            selectPolicy: Min
+          scaleUp:
+            stabilizationWindowSeconds: 120
+            policies:
+              - type: Pods
+                value: 8
+                periodSeconds: 90
+              - type: Percent
+                value: 100
+                periodSeconds: 90
+            selectPolicy: Max
+tools:
+  envs:
+    tools:
+      enabled: false
+playground:
+  envs:
+enabled: false
+replicaCount: 1
+services:
+  app:
+    image:
+      repository: funda.azurecr.io/${{ values.name | lower }}
+    replicaCount: 1
+    apmTagName: ${{ values.applicationName | lower }}
+probes:
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 4
+    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    periodSeconds: 5
+    timeoutSeconds: 4
+    failureThreshold: 2
+serviceAccount:
+  enabled: false
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 1
+    memory: 512Mi
+nodeSelector: {}
+tolerations: []
+affinity: {}
+podAnnotations: []
+env: []
+secrets: []
+service:
+  enabled: true
+  type: ClusterIP
+  externalPort: 80
+  containerPort: 5000
+topologySpread:
+  enabled: false
+apmEnabled: true
+hpa:
+  enabled: false
+traefikIngress:
+  enabled: true

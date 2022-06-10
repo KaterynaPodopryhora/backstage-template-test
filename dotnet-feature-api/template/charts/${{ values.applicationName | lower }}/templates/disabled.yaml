@@ -1,0 +1,18 @@
+{% raw %}
+{{- range $env_name, $overrides := (get .Values .Values.environment_name).envs }}
+{{- with $ }}
+{{- with (set . "Values" (mustMergeOverwrite .Values  ($overrides|default dict) (dict "env_name" $env_name))) }}
+{{- if  eq .Values.enabled false }}
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ .Release.Name }}-disabled
+  namespace: default
+data:
+  message: {{ .Release.Name }} is not deployed in this env check the config in its repo.
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{% endraw %}

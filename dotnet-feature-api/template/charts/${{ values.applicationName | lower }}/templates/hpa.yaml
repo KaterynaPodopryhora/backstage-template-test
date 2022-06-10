@@ -1,0 +1,54 @@
+{% raw %}
+{{/* Merge {cluster}.envs.{subEnv} dict into .Values */}}
+{{- range $env_name, $env_overrides := ((get .Values .Values.environment_name).envs) }}
+{{- with mustDeepCopy $ }}
+{{- $_ := set . "Values" (mustMergeOverwrite .Values ($env_overrides | default dict) (dict "env_name" $env_name)) }}
+
+{{- if .Values.enabled }}
+
+{{/* Merge {cluster}.envs.{subEnv}.services.{serviceName} dict into .Values */}}
+{{ $root := . }}
+{{- range $service_name, $service_overrides := .Values.services }}
+{{- with mustDeepCopy $root }}
+{{- $_ := set . "Values" (mustMergeOverwrite .Values ($service_overrides | default dict) (dict "service_name" $service_name)) }}
+
+{{- if .Values.hpa.enabled }}
+---
+{{- $fullName := include "funda-helper.fullname" . -}}
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "funda-helper.fullname" . }}
+  labels:
+    app: {{ template "funda-helper.name" . }}
+    chart: {{ template "funda-helper.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote }}
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion }}
+    helm.sh/chart: {{ template "funda-helper.chart" . }}
+spec:
+  scaleTargetRef:
+    apiVersion: {{ .Values.hpa.apiVersion }}
+    kind: {{ .Values.hpa.kind }}
+    name: {{ template "funda-helper.fullname" . }}
+  minReplicas: {{ .Values.hpa.minReplicas }}
+  maxReplicas: {{ .Values.hpa.maxReplicas }}
+  metrics:
+{{- with .Values.hpa.metrics }}
+{{ toYaml . | indent 2 }}
+{{- end }}
+  behavior:
+{{- with .Values.hpa.behavior }}
+{{ toYaml . | indent 4 }}
+{{- end }}
+{{ end -}}
+
+{{ end -}}
+{{ end -}}
+
+{{ end -}}
+{{ end -}}
+{{ end -}}
+{% endraw %}
