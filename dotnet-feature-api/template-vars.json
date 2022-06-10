@@ -16,6 +16,6 @@
     "enableEntityFramework": true,
     "enableEntityFrameworkSqlServer": true,
     "enableEntityFrameworkCosmosDb": true,
-    "enableInMemoryRepository": true  
+    "enableInMemoryRepository": true
   }
 }

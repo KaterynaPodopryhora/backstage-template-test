@@ -1,8 +1,8 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: dotnet-feature-api-v1.0-test # Remember to also change templateName
-  title: .NET 6.0 > Feature Service API v1.0 - test
+  name: dotnet-feature-api-v1.0-test2 # Remember to also change templateName
+  title: .NET 6.0 > Feature Service API v1.0
   description: Create a .NET 6.0 Feature Service API
   tags:
     - service
@@ -56,7 +56,7 @@ spec:
       properties:
         httpApi:
           title: HTTP API
-          description: "'' provides a simpler, lightweight alternative to the tried and true 'MVC Controllers'."
+          description: "'.NET 6 Minimal API Endpoints' provides a simpler, lightweight alternative to the tried and true 'MVC Controllers'."
           type: string
           oneOf:
             - const: ".NET 6 Minimal API Endpoints"
@@ -129,7 +129,7 @@ spec:
       input:
         url: './template'
         values:
-          templateName: dotnet-feature-api-v1.0-test # From metadata.name
+          templateName: dotnet-feature-api-v1.0-test2 # From metadata.name
           name: ${{ parameters.name }}
           description: ${{ parameters.description }}
           owner: ${{ parameters.owner }}
@@ -263,8 +263,9 @@ spec:
         allowedHosts: ['github.com']
         defaultBranch: main
         description: ${{ parameters.description }}
-        repoUrl: 'github.com?owner=${{ parameters.owner }}&repo=Funda.${{ parameters.name }}'
-
+        repoUrl: 'github.com?owner=${{ parameters.organization }}&repo=Funda.${{ parameters.name }}'
+        access: '${{ parameters.organization }}/${{ parameters.owner }}'
+  
     - id: azdevops
       name: Create Azure DevOps Pipeline
       action: azdevops-pipeline-creator
@@ -284,7 +285,7 @@ spec:
       action: publish:github:pull-request
       input:
         description: ${{ parameters.description }}
-        repoUrl: 'github.com?owner=${{ parameters.owner }}&repo=Funda.${{ parameters.name }}'
+        repoUrl: 'github.com?owner=${{ parameters.organization }}&repo=Funda.${{ parameters.name }}'
         branchName: catalog-info
         title: "Update catalog-info.yaml"
 
