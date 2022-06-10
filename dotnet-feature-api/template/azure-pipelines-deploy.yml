@@ -3,11 +3,6 @@ parameters:
     type: string
   - name: imageTag
     type: string
-  - name: stateKey
-    type: string
-  - name: releaseName
-    type: string 
-
 
 resources:
   repositories:
@@ -22,15 +17,13 @@ stages:
   - template: service/deploy/terraform-plan-apply.yml@templates
     parameters:
       name: TerraformPlanApply
-      notifyUsers: my-team@funda.nl # Use your own team's email address
-      environment: ${{ parameters.environment }}
-      stateKey: ${{ parameters.stateKey }}
+      environment: {% raw %} ${{ parameters.environment }} {% endraw %}
+      stateKey: ${{ values.applicationName | lower }}
 
   - template: service/deploy/push-helm.yml@templates
     parameters:
       name: PushHelm
       dependsOn: UpgradeTasks
-      releaseName: ${{ parameters.releaseName }}
-      environment: ${{ parameters.environment }}
-      imageTag: ${{ parameters.imageTag}}
-      
+      releaseName: ${{ values.applicationName | lower }}
+      environment: {% raw %} ${{ parameters.environment }} {% endraw %}
+      imageTag: {% raw %} ${{ parameters.imageTag}} {% endraw %}
