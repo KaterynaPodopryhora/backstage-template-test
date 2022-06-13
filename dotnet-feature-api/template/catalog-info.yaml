@@ -7,7 +7,9 @@ metadata:
     - service
   links:
     - title: Open build pipeline
-      url: ${{ steps.azdevops.output.pipelineUrl | default('http://dummy.invalid/') | string }}
+      url: ${{ steps.azdevops.output.buildPipelineUrl | default('http://dummy.invalid/') | string }}
+    - title: Open deploy pipeline
+      url: ${{ steps.azdevops.output.deployPipelineUrl | default('http://dummy.invalid/') | string }}
   annotations:
     backstage.io/techdocs-ref: dir:.
     github.com/project-slug: 'Funda.${{ parameters.name or values.name }}'
