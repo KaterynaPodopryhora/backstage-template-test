@@ -7,12 +7,6 @@ trigger:
     include:
       - '*'
 
-parameters:
-  - name: name
-    type: string
-  - name: buildTag
-    type: string
-
 resources:
   repositories:
     - repository: templates
