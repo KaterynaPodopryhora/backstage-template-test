@@ -10,7 +10,7 @@ resources:
   repositories:
     - repository: templates
       type: github
-      ref: 0.2
+      ref: refs/tags/0.4.1
       name: fundarealestate/service-pipeline-templates
       endpoint: fundarealestate
   
