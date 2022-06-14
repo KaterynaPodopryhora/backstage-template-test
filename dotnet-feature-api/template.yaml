@@ -143,7 +143,7 @@ spec:
           enableFundaMessaging: ${{ parameters.fundaMessaging | d(false, true) }}
           enableCosmosDb: ${{ parameters.cosmosDb | d(false, true) }}
           enableCosmosDbRepository: ${{ (parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true)) }}
-          enableEntityFramework: ${{ parameters.entityFramework != '' }}
+          enableEntityFramework: ${{ parameters.entityFramework | d(false, true) }}
           enableEntityFrameworkCosmosDb: ${{ parameters.entityFramework == 'Entity Framework Core with CosmosDB' }}
           enableEntityFrameworkSqlServer: ${{ parameters.entityFramework == 'Entity Framework Core with SqlServer' }}
           enableEntityFrameworkRepository: ${{ (parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true)) }}
