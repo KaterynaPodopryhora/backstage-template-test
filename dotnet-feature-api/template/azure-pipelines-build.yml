@@ -23,9 +23,5 @@ stages:
           imageName: ${{ values.name | lower }}
 
   - template: service/build/unit-tests-dotnet.yml@templates
-    parameters:
-      dependsOn: Build
 
   - template: service/build/validate-terraform.yml@templates
-    parameters:
-      dependsOn: UnitTests
