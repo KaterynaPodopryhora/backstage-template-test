@@ -8,7 +8,7 @@ ARG NUGET_ENDPOINT
 ENV VSS_NUGET_EXTERNAL_FEED_ENDPOINTS "{\"endpointCredentials\": [{\"endpoint\":\"${NUGET_ENDPOINT}\", \"password\":\"${NUGET_ACCESS_TOKEN}\"}]}"
 
 # Restore dependencies first (optimizes the build time by making use of Docker's layers)
-ARG PROJECT="${ values.applicationName }"
+ARG PROJECT="${{ values.applicationName }}"
 COPY NuGet.config repo/
 COPY src/$PROJECT/$PROJECT.csproj repo/src/$PROJECT/
 RUN dotnet restore repo/src/$PROJECT/$PROJECT.csproj
@@ -31,4 +31,4 @@ USER appuser
 
 EXPOSE 5000
 ENV ASPNETCORE_URLS=http://*:5000
-ENTRYPOINT ["dotnet", "${ values.namespacePrefix }.dll"]
+ENTRYPOINT ["dotnet", "${{ values.namespacePrefix }}.dll"]
