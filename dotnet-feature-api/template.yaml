@@ -162,7 +162,7 @@ spec:
     - id: remove-controllers
       name: Remove Controllers
       action: fs:delete
-      if: ${{ parameters.httpApi == 'MVC Controllers' }}
+      if: ${{ parameters.httpApi != 'MVC Controllers' }}
       input:
         files:
           - src/Funda.${{ parameters.name }}/Controllers
@@ -170,7 +170,7 @@ spec:
     - id: remove-endpoints
       name: Remove Endpoints
       action: fs:delete
-      if: ${{ parameters.httpApi == '.NET 6 Minimal API Endpoints' }}
+      if: ${{ parameters.httpApi != '.NET 6 Minimal API Endpoints' }}
       input:
         files:
           - src/Funda.${{ parameters.name }}/Endpoints
