@@ -14,6 +14,6 @@ public class BaseTest : IClassFixture<WebApplicationFactory<Program>>, IDisposab
     public void Dispose()
     {
         TestClient.Dispose();
-        GC.SuppressFinalize(this);
+        GC.SuppressFinalize(this); // more details here https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/ca1816 
     }
 }
