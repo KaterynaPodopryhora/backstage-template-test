@@ -150,12 +150,9 @@ spec:
           enableInMemoryRepository: >-
             ${{
               (
-                not
-                (
-                  (not ((parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true))))
-                  and
-                  (not ((parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true))))
-                )
+                (not ((parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true))))
+                and
+                (not ((parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true))))
               )
             }}
 
