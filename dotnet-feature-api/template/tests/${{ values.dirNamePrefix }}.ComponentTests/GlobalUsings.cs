@@ -7,3 +7,4 @@ global using Microsoft.Extensions.DependencyInjection;
 global using WireMock;
 global using WireMock.Server;
 global using ProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
+global using Xunit;
