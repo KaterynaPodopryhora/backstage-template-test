@@ -8,5 +8,6 @@ global using ${{ values.namespacePrefix }}.Infrastructure.InMemory;
 {%- endif %}
 
 global using Moq;
+global using Xunit;
 global using ${{ values.namespacePrefix }}.Domain.Models;
 global using ${{ values.namespacePrefix }}.Domain.Repositories;
