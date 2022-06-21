@@ -199,7 +199,7 @@ spec:
     - id: remove-cosmosdb-repository
       name: Remove CosmosDB Repository class
       action: fs:delete
-      if: ${{ not (parameters.cosmosDb and parameters.cosmosDbRepository) }}
+      if: ${{ not ((parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true))) }}
       input:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/CosmosDb/CosmosDbRepository.cs
@@ -252,6 +252,7 @@ spec:
       input:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/InMemory
+          - tests/Funda.${{ parameters.name }}.Infrastructure.UnitTests/InMemory
 
     - id: publish
       name: Create GitHub Repository
