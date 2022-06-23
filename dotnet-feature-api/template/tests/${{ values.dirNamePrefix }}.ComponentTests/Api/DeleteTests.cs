@@ -2,8 +2,14 @@ namespace ${{ values.namespacePrefix }}.ComponentTests.Api;
 
 public class DeleteTests : BaseTest
 {
+    private readonly TestClient _testClient;
+
     public DeleteTests(WebApplicationFactory<Program> factory) : base(factory)
     {
+        _testClient = TestClientBuilder.Build(services =>
+        {
+            services.AddSingleton(new MeasurementRepositoryStub().Stub);
+        });
     }
 
     [Theory]

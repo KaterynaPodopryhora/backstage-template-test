@@ -1,9 +1,9 @@
 apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
-  name: dotnet-feature-api-v1.0-test2 # Remember to also change templateName
-  title: .NET 6.0 > Feature Service API v1.0 test
-  description: Create a .NET 6.0 Feature Service API TEST
+  name: dotnet-feature-api-v1.0 # Remember to also change templateName
+  title: .NET 6.0 > Feature Service API v1.0 
+  description: Create a .NET 6.0 Feature Service API
   tags:
     - service
     - template
@@ -129,7 +129,7 @@ spec:
       input:
         url: './template'
         values:
-          templateName: dotnet-feature-api-v1.0-test2 # From metadata.name
+          templateName: dotnet-feature-api-v1.0 # From metadata.name
           name: ${{ parameters.name }}
           description: ${{ parameters.description }}
           owner: ${{ parameters.owner }}
@@ -199,7 +199,7 @@ spec:
     - id: remove-cosmosdb-repository
       name: Remove CosmosDB Repository class
       action: fs:delete
-      if: ${{ not ((parameters.cosmosDb | d(false, true)) and (parameters.cosmosDbRepository | d(false, true))) }}
+      if: ${{ not (parameters.cosmosDb and parameters.cosmosDbRepository) }}
       input:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/CosmosDb/CosmosDbRepository.cs
@@ -252,7 +252,6 @@ spec:
       input:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/InMemory
-          - tests/Funda.${{ parameters.name }}.Infrastructure.UnitTests/InMemory
 
     - id: publish
       name: Create GitHub Repository

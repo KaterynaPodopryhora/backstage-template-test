@@ -2,8 +2,14 @@ namespace ${{ values.namespacePrefix }}.ComponentTests.Api;
 
 public class FindByIdTests : BaseTest
 {
+    private readonly TestClient _testClient;
+
     public FindByIdTests(WebApplicationFactory<Program> factory) : base(factory)
     {
+         _testClient = TestClientBuilder.Build(services =>
+        {
+            services.AddSingleton(new MeasurementRepositoryStub().Stub);
+        });
     }
 
     [Theory]

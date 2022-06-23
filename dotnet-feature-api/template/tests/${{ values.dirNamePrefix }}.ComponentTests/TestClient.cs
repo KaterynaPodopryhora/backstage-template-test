@@ -6,28 +6,10 @@ public class TestClient : IDisposable
 
     public WireMockServer WireMockServer { get; }
 
-    public TestClient(WebApplicationFactory<Program> factory)
+    public TestClient(WireMockServer wireMockServer, HttpClient httpClient)
     {
-        WireMockServer = WireMockServer.Start();
-        var port = WireMockServer.Ports.First();
-        var url = $"http://localhost:{port}/";
-
-        HttpClient = factory
-            .WithWebHostBuilder(
-                builder =>
-                {
-                    builder.UseEnvironment("testserver");
-                    builder.ConfigureTestServices(services =>
-                    {
-                        services.AddHttpClient("valueClient", c => { c.BaseAddress = new Uri(url); });
-                    });
-                })
-            .CreateClient(
-                new WebApplicationFactoryClientOptions
-                {
-                    AllowAutoRedirect = false,
-                    HandleCookies = false
-                });
+        HttpClient = httpClient;
+        WireMockServer = wireMockServer;
     }
 
     public void Dispose()

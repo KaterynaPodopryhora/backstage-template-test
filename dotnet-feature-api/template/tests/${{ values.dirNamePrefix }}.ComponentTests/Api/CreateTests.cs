@@ -2,8 +2,15 @@ namespace ${{ values.namespacePrefix }}.ComponentTests.Api;
 
 public class CreateTests : BaseTest
 {
+    private readonly TestClient _testClient;
+    private readonly MeasurementRepositoryStub measurementRepositoryStub = new();
+
     public CreateTests(WebApplicationFactory<Program> factory) : base(factory)
     {
+        _testClient = TestClientBuilder.Build(services =>
+        {
+            services.AddSingleton(measurementRepositoryStub.Stub);
+        });
     }
 
     [Theory]
@@ -12,14 +19,16 @@ public class CreateTests : BaseTest
     {
         // Arrange
         var client = TestClient.HttpClient;
-
-        // Act
-        var response = await client.PostAsJsonAsync(BaseUrl, new 
+        var measurement = new Measurement() 
         {
-            MeasurementId = id,
+            Id = id,
             TemperatureC = temperatureC,
             Summary = summary
-        });
+        }
+        measurementRepositoryStub.ConfigureCreateAsync(measurement);
+
+        // Act
+        var response = await client.PostAsJsonAsync(BaseUrl, measurement);
         
         // Assert
         response.EnsureSuccessStatusCode();
@@ -39,6 +48,13 @@ public class CreateTests : BaseTest
     {
         // Arrange
         var client = TestClient.HttpClient;
+        var measurement = new Measurement() 
+        {
+            Id = id,
+            TemperatureC = temperatureC,
+            Summary = summary
+        }
+        measurementRepositoryStub.ConfigureCreateAsync(measurement);
 
         // Act
         var response = await client.PostAsJsonAsync(BaseUrl, new
