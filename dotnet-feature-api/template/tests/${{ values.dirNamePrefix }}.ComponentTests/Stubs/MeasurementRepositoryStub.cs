@@ -1,13 +1,15 @@
+using ${{ values.namespacePrefix }}.Domain.Repositories;
+using ${{ values.namespacePrefix }}.Domain.Models;
+
 namespace ${{ values.namespacePrefix }}.ComponentTests.Stubs;
+
 public class MeasurementRepositoryStub
 {
     private readonly Mock<IMeasurementRepository> _stubber = new();
 
     public IMeasurementRepository Stub => _stubber.Object;
 
-    public MeasurementRepositoryStub
-    {
-    }
+    public MeasurementRepositoryStub() {}
 
     public void ConfigureCreateAsync(IMeasurement result)
     {

@@ -8,3 +8,4 @@ global using WireMock;
 global using WireMock.Server;
 global using ProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 global using Xunit;
+global using Moq;

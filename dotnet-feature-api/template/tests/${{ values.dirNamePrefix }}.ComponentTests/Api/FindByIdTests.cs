@@ -1,3 +1,5 @@
+using ${{ values.namespacePrefix }}.ComponentTests.Stubs;
+
 namespace ${{ values.namespacePrefix }}.ComponentTests.Api;
 
 public class FindByIdTests : BaseTest
@@ -17,7 +19,7 @@ public class FindByIdTests : BaseTest
     public async Task When_IdUnknown_Returns_NoContent(string id)
     {
         // Arrange
-        var client = TestClient.HttpClient;
+        var client = _testClient.HttpClient;
 
         // Act
         var response = await client.GetAsync($"{BaseUrl}/{id}");
@@ -33,7 +35,7 @@ public class FindByIdTests : BaseTest
     public async Task When_IdMalformed_Returns_NotFound(string id)
     {
         // Arrange
-        var client = TestClient.HttpClient;
+        var client = _testClient.HttpClient;
 
         // Act
         var response = await client.GetAsync($"{BaseUrl}/{id}");

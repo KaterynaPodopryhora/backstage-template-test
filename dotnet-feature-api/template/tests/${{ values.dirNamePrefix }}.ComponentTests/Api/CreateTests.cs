@@ -1,3 +1,5 @@
+using ${{ values.namespacePrefix }}.ComponentTests.Stubs;
+
 namespace ${{ values.namespacePrefix }}.ComponentTests.Api;
 
 public class CreateTests : BaseTest
@@ -18,13 +20,14 @@ public class CreateTests : BaseTest
     public async Task When_InputValid_Returns_SuccessAndResult(Guid id, double temperatureC, string summary)
     {
         // Arrange
-        var client = TestClient.HttpClient;
-        var measurement = new Measurement() 
+        var client = _testClient.HttpClient;
+        var measurement = new Domain.Models.Measurement() 
         {
             Id = id,
             TemperatureC = temperatureC,
             Summary = summary
-        }
+        };
+
         measurementRepositoryStub.ConfigureCreateAsync(measurement);
 
         // Act
@@ -44,16 +47,17 @@ public class CreateTests : BaseTest
 
     [Theory]
     [ClassData(typeof(InvalidInputTestDataGenerator))]
-    public async Task When_InputInvalid_Returns_BadRequestAndProblem(string id, double temperatureC, string summary, string expectedProblemTitle)
+    public async Task When_InputInvalid_Returns_BadRequestAndProblem(Guid id, double temperatureC, string summary, string expectedProblemTitle)
     {
         // Arrange
-        var client = TestClient.HttpClient;
-        var measurement = new Measurement() 
+        var client = _testClient.HttpClient;
+        var measurement = new Domain.Models.Measurement() 
         {
             Id = id,
             TemperatureC = temperatureC,
             Summary = summary
-        }
+        };
+
         measurementRepositoryStub.ConfigureCreateAsync(measurement);
 
         // Act

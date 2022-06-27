@@ -1,3 +1,5 @@
+using ${{ values.namespacePrefix }}.ComponentTests.Stubs;
+
 namespace ${{ values.namespacePrefix }}.ComponentTests.Api;
 
 public class DeleteTests : BaseTest
@@ -17,7 +19,7 @@ public class DeleteTests : BaseTest
     public async Task When_IdUnknown_Returns_NoContent(string id)
     {
         // Arrange
-        var client = TestClient.HttpClient;
+        var client = _testClient.HttpClient;
 
         // Act
         var response = await client.DeleteAsync($"{BaseUrl}/{id}");
