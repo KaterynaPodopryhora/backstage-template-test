@@ -3,9 +3,9 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 # some metadata about the template itself
 metadata:
-  name: dotnet-package-v2
-  title: .NET 5.0 > Nuget Package
-  description: Create a .NET 5.0 Nuget package
+  name: dotnet-package-v2-test
+  title: .NET 5.0 > Nuget Package test
+  description: Create a .NET 5.0 Nuget package Test
 spec:
   owner: Platform Team
   type: library
