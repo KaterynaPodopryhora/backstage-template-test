@@ -60,7 +60,7 @@ spec:
         values:
           package_owner: ${{ parameters.owner }}
           package_description: ${{ parameters.description }}
-          package_name: 'Funda.Extensions.${{ parameters.name }}'
+          package_name: Funda.Extensions.${{ parameters.name }}
           host: https://github.com
           organization: fundarealestate
 
@@ -69,8 +69,8 @@ spec:
       action: publish:github
       input:
         allowedHosts: ['github.com']
-        description: 'This is Funda.Extensions.${{ parameters.name }}'
-        repoUrl: 'github.com?owner=fundarealestate&repo=Funda.Extensions.${{ parameters.name }}'
+        description: This is Funda.Extensions.${{ parameters.name }}
+        repoUrl: github.com?owner=fundarealestate&repo=Funda.Extensions.${{ parameters.name }}
 
     - id: register
       name: Register
@@ -84,7 +84,7 @@ spec:
       action: azdevops-pipeline-creator
       input:
         owner: ${{ parameters.owner }}
-        name: 'Funda.Extensions.${{ parameters.name }}'
+        name: Funda.Extensions.${{ parameters.name }}
 
   # some outputs which are saved along with the job for use in the frontend
   output:
