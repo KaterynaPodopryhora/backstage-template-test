@@ -1,5 +1,5 @@
 
-apiVersion: backstage.io/v1beta2
+apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 # some metadata about the template itself
 metadata:
@@ -52,15 +52,15 @@ spec:
               - Group
   # here's the steps that are executed in series in the scaffolder backend
   steps:
-    - id: fetch-base
+    - id: fetchBase
       name: Fetch Base
       action: fetch:cookiecutter
       input:
         url: ./template
         values:
-          package_owner: '{{ parameters.owner }}'
-          package_description: '{{ parameters.description }}'
-          package_name: 'Funda.Extensions.{{ parameters.name }}'
+          package_owner: ${{ parameters.owner }}
+          package_description: ${{ parameters.description }}
+          package_name: 'Funda.Extensions.${{ parameters.name }}'
           host: https://github.com
           organization: fundarealestate
 
@@ -69,29 +69,29 @@ spec:
       action: publish:github
       input:
         allowedHosts: ['github.com']
-        description: 'This is Funda.Extensions.{{ parameters.name }}'
-        repoUrl: 'github.com?owner=fundarealestate&repo=Funda.Extensions.{{ parameters.name }}'
+        description: 'This is Funda.Extensions.${{ parameters.name }}'
+        repoUrl: 'github.com?owner=fundarealestate&repo=Funda.Extensions.${{ parameters.name }}'
 
     - id: register
       name: Register
       action: catalog:register
       input:
-        repoContentsUrl: '{{ steps.publish.output.repoContentsUrl }}/'
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}/
         catalogInfoPath: './catalog-info.yml'
     
-    - id: azdevops-pipeline-creator
+    - id: azdevopsPipelineCreator
       name: Create AzureDevOps Pipeline
       action: azdevops-pipeline-creator
       input:
-        owner: '{{ parameters.owner }}'
-        name: 'Funda.Extensions.{{ parameters.name }}'
+        owner: ${{ parameters.owner }}
+        name: 'Funda.Extensions.${{ parameters.name }}'
 
   # some outputs which are saved along with the job for use in the frontend
   output:
-    repoContentsUrl: '{{ steps.publish.output.repoContentsUrl }}'
-    remoteUrl: '{{ steps.publish.output.remoteUrl }}'
-    entityRef: '{{ steps.register.output.entityRef }}'
-    pipelineUrl: '{{ steps.azdevops-pipeline-creator.output.buildPipelineUrl}}'
+    repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+    remoteUrl: ${{ steps.publish.output.remoteUrl }}
+    entityRef: ${{ steps.register.output.entityRef }}
+    pipelineUrl: ${{ steps.azdevops-pipeline-creator.output.buildPipelineUrl }}
     links:
       - title: Open build pipeline
-        url: '{{ steps.azdevops-pipeline-creator.output.buildPipelineUrl }}'
+        url: ${{ steps.azdevops-pipeline-creator.output.buildPipelineUrl }}
