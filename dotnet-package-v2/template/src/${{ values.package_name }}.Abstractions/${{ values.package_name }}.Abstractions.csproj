@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Package Settings -->
+  <PropertyGroup>
+    <PackageId>${{values.package_name}}.Abstractions</PackageId>
+    <Description>${{values.package_description}}</Description>
+    <RootNamespace>${{values.package_name}}</RootNamespace>
+  </PropertyGroup>
+  
+  <!-- Common Properties -->
+  <Import Project="..\..\common.props" />
+
+</Project>

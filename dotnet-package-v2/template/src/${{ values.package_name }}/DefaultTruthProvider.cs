@@ -1,7 +1,7 @@
 ﻿using Funda.Extensions.ArgumentValidation;
 using System.Threading.Tasks;
 
-namespace {{values.package_name}}
+namespace ${{values.package_name}}
 {
     ///<inheritdoc/>
     public class DefaultTruthProvider : ITruthProvider

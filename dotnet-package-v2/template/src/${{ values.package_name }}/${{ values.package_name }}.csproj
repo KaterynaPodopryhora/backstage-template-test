@@ -2,8 +2,8 @@
   
   <!-- Package Settings -->
   <PropertyGroup>
-    <PackageId>{{values.package_name}}</PackageId>
-    <Description>{{values.package_description}}</Description>
+    <PackageId>${{values.package_name}}</PackageId>
+    <Description>${{values.package_description}}</Description>
   </PropertyGroup>
 
   <!-- Common Properties -->

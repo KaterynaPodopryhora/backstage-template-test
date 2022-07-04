@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace {{values.package_name}}
+namespace ${{values.package_name}}
 {
     /// <summary>
     /// This service does something very smart.

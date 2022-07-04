@@ -3,7 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace {{values.package_name}}.UnitTests
+namespace ${{values.package_name}}.UnitTests
 {
     public class DefaultTruthProviderTests
     {
