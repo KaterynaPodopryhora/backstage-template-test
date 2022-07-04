@@ -123,7 +123,7 @@ spec:
 
   # scaffolding steps
   steps:
-    - id: fetch-base
+    - id: fetchBase
       name: Fetch Template
       action: fetch:template
       input:
@@ -156,7 +156,7 @@ spec:
               )
             }}
 
-    - id: remove-controllers
+    - id: removeControllers
       name: Remove Controllers
       action: fs:delete
       if: ${{ parameters.httpApi != 'MVC Controllers' }}
@@ -164,7 +164,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}/Controllers
 
-    - id: remove-endpoints
+    - id: removeEndpoints
       name: Remove Endpoints
       action: fs:delete
       if: ${{ parameters.httpApi != '.NET 6 Minimal API Endpoints' }}
@@ -172,7 +172,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}/Endpoints
 
-    - id: remove-funda-messaging
+    - id: removeFundaMessaging
       name: Remove Funda.Messaging
       action: fs:delete
       if: ${{ not (parameters.fundaMessaging | d(false, true)) }}
@@ -180,7 +180,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}/Messaging
           
-    - id: setup-sqlserver
+    - id: setupSqlserver
       name: Remove SQL Server
       action: fs:delete
       if: ${{ not (parameters.sqlServer | d(false, true)) }}
@@ -188,7 +188,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/SqlServer
 
-    - id: remove-cosmosdb
+    - id: removeCosmosdb
       name: Remove CosmosDB
       action: fs:delete
       if: ${{ not (parameters.cosmosDb | d(false, true)) }}
@@ -196,7 +196,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/CosmosDb
 
-    - id: remove-cosmosdb-repository
+    - id: removeCosmosdbRepository
       name: Remove CosmosDB Repository class
       action: fs:delete
       if: ${{ not (parameters.cosmosDb and parameters.cosmosDbRepository) }}
@@ -204,7 +204,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/CosmosDb/CosmosDbRepository.cs
 
-    - id: remove-ef
+    - id: removeEf
       name: Remove EF Core
       action: fs:delete
       if: ${{ not parameters.entityFramework }}
@@ -212,7 +212,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework
 
-    - id: remove-ef-repository
+    - id: removeEfRepository
       name: Remove EF Core Repository Class
       action: fs:delete
       if: ${{ not ((parameters.entityFramework | d(false, true)) and (parameters.entityFrameworkRepository | d(false, true))) }}
@@ -220,7 +220,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework/EntityFrameworkMeasurementRepository.cs
 
-    - id: remove-ef-cosmos
+    - id: removeEfCosmos
       name: Remove EF Core CosmosDb
       action: fs:delete
       if: ${{ parameters.entityFramework != 'Entity Framework Core with CosmosDB' }}
@@ -228,7 +228,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework/CosmosDb
 
-    - id: remove-ef-sqlserver
+    - id: removeEfSqlserver
       name: Remove EF Core SqlServer
       action: fs:delete
       if: ${{ parameters.entityFramework != 'Entity Framework Core with SqlServer' }}
@@ -236,7 +236,7 @@ spec:
         files:
           - src/Funda.${{ parameters.name }}.Infrastructure/EntityFramework/SqlServer
 
-    - id: remove-in-memory-repository
+    - id: removeInMemoryRepository
       name: Remove In Memory repository
       action: fs:delete
       if: >-
@@ -290,7 +290,7 @@ spec:
       name: Register with Software Catalog
       action: catalog:register
       input:
-        catalogInfoUrl: '${{ steps.publish.output.repoContentsUrl }}/catalog-info.yaml'
+        catalogInfoUrl: ${{ steps.publish.output.repoContentsUrl }}/catalog-info.yml'
 
   # outputs
   output:
