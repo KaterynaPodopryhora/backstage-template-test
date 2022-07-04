@@ -2,8 +2,8 @@
   
   <!-- Package Settings -->
   <PropertyGroup>
-    <PackageId>{{cookiecutter.package_name}}</PackageId>
-    <Description>{{cookiecutter.package_description}}</Description>
+    <PackageId>{{values.package_name}}</PackageId>
+    <Description>{{values.package_description}}</Description>
   </PropertyGroup>
 
   <!-- Common Properties -->
@@ -11,7 +11,7 @@
 
   <!-- Project Dependencies -->
   <ItemGroup>
-    <ProjectReference Include="..\{{cookiecutter.package_name}}.Abstractions\{{cookiecutter.package_name}}.Abstractions.csproj" />
+    <ProjectReference Include="..\{{values.package_name}}.Abstractions\{{values.package_name}}.Abstractions.csproj" />
   </ItemGroup>
   
   <!-- NuGet Dependencies -->

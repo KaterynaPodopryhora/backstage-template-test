@@ -24,7 +24,7 @@
 
   <!-- Project Dependencies -->
   <ItemGroup>
-    <ProjectReference Include="..\..\src\{{cookiecutter.package_name}}\{{cookiecutter.package_name}}.csproj" />
+    <ProjectReference Include="..\..\src\{{values.package_name}}\{{values.package_name}}.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,7 @@
 ﻿using Funda.Extensions.ArgumentValidation;
-using {{cookiecutter.package_name}};
 using System.Threading.Tasks;
 
-namespace {{cookiecutter.package_name}}
+namespace {{values.package_name}}
 {
     ///<inheritdoc/>
     public class DefaultTruthProvider : ITruthProvider

@@ -1,10 +1,9 @@
 using FluentAssertions;
-using {{cookiecutter.package_name}};
 using System;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace {{cookiecutter.package_name}}.UnitTests
+namespace {{values.package_name}}.UnitTests
 {
     public class DefaultTruthProviderTests
     {

@@ -1,12 +1,12 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: "{{ cookiecutter.package_name }}"
-  description: "{{ cookiecutter.package_description }}"
+  name: ${{ parameters.name or values.name }}
+  description: ${{ parameters.description or values.description }}
   annotations:
     backstage.io/techdocs-ref: dir:.
 spec:
   type: library
   lifecycle: experimental
-  owner: "{{ cookiecutter.package_owner }}"
-  name: "{{ cookiecutter.package_name }}" 
+  owner: ${{ parameters.owner or values.owner }}
+  name: ${{ parameters.name or values.name }} 
