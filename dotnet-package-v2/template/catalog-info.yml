@@ -1,12 +1,12 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ${{ parameters.name or values.name }}
-  description: ${{ parameters.description or values.description }}
+  name: ${{ parameters.name or values.package_name }}
+  description: ${{ parameters.description or values.package_description }}
   annotations:
     backstage.io/techdocs-ref: dir:.
 spec:
   type: library
   lifecycle: experimental
-  owner: ${{ parameters.owner or values.owner }}
-  name: ${{ parameters.name or values.name }} 
+  owner: ${{ parameters.owner }}
+  name: ${{ parameters.name or values.package_name }} 
