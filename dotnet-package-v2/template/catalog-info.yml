@@ -8,5 +8,5 @@ metadata:
 spec:
   type: library
   lifecycle: experimental
-  owner: ${{ parameters.owner }}
+  owner: ${{ parameters.owner or values.package_owner }}
   name: ${{ parameters.name or values.package_name }} 
