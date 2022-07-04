@@ -1,1 +1,1 @@
-# {{values.package_name}}
+# ${{values.package_name}}

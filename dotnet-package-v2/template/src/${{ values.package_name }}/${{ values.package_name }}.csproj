@@ -11,7 +11,7 @@
 
   <!-- Project Dependencies -->
   <ItemGroup>
-    <ProjectReference Include="..\{{values.package_name}}.Abstractions\{{values.package_name}}.Abstractions.csproj" />
+    <ProjectReference Include="..\${{values.package_name}}.Abstractions\${{values.package_name}}.Abstractions.csproj" />
   </ItemGroup>
   
   <!-- NuGet Dependencies -->
