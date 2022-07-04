@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30709.132
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "{{cookiecutter.package_name}}", "src\{{cookiecutter.package_name}}\{{cookiecutter.package_name}}.csproj", "{582299A0-8F1D-4352-8B5C-5E496F84D0C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "{{values.package_name}}", "src\{{values.package_name}}\{{values.package_name}}.csproj", "{582299A0-8F1D-4352-8B5C-5E496F84D0C1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{BF0A188E-C5F5-459B-B022-3FF99295EEE8}"
 EndProject
@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{CA3C4B3B-6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{E1CB6AA0-A0A8-48A7-9A7A-D5B3D26F566C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{cookiecutter.package_name}}.Abstractions", "src\{{cookiecutter.package_name}}.Abstractions\{{cookiecutter.package_name}}.Abstractions.csproj", "{E9AECEAC-A350-48F7-9446-13666E57D373}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{values.package_name}}.Abstractions", "src\{{values.package_name}}.Abstractions\{{values.package_name}}.Abstractions.csproj", "{E9AECEAC-A350-48F7-9446-13666E57D373}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{cookiecutter.package_name}}.UnitTests", "tests\{{cookiecutter.package_name}}.UnitTests\{{cookiecutter.package_name}}.UnitTests.csproj", "{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "{{values.package_name}}.UnitTests", "tests\{{values.package_name}}.UnitTests\{{values.package_name}}.UnitTests.csproj", "{0C03E2D0-A5A5-4FD1-BA34-761EAF20A157}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3ABCC501-93A2-4B91-893C-9C137539941B}"
 	ProjectSection(SolutionItems) = preProject
